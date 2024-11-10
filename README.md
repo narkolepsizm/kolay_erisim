@@ -1,2 +1,2 @@
-# kolay-erisim
+# Kolay Erişim
 Kolay Erişim Uygulaması
