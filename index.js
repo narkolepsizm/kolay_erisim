@@ -8,7 +8,7 @@ app.use(express.json()); // express'in json veri türünü kullanabilmesi içn
 app.use(cookieParser()); // express'in cookie'leri kullanabilmesi için
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '127.0.0.1', () => console.log(`Server is listening on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
 
 const { authenticator } = require('otplib');
 const QRCode = require('qrcode');
@@ -112,7 +112,7 @@ function almancaKelimeSec(tur) {
     });
   });
 }
-  
+
 const cookieDogrula = (req, res, next) => {
   const token = req.cookies.token;
   const uuid = req.cookies.userid;
