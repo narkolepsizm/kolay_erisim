@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notlar - Kolay Erişim</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; }
+        .container { max-width: 1200px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .arama-cubugu { margin-bottom: 20px; }
+        .not-izgarasi { display: grid; gap: 15px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        .tekil-not { position: relative; background-color: #fff; padding: 15px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .not-basligi { font-weight: bold; margin-bottom: 10px; cursor: pointer; }
+        .silme-butonu { position: absolute; top: 10px; right: 10px; background-color: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+        button { padding: 10px 20px; background-color: #4CAF50; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+        @media (max-width: 600px) { .not-izgarasi { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Notlar</h1>
+            <button onclick="notEkle()">Yeni Not Ekle</button>
+        </div>
+        <div class="arama-cubugu">
+            <input type="text" id="arama" placeholder="Notlarda arayın..." oninput="notAra()">
+        </div>
+        <div class="not-izgarasi" id="notlar"></div>
+    </div>
+
+    <script>
+        function temizle(yazi) {
+            const gecici = document.createElement('div');
+            gecici.textContent = yazi;
+            return gecici.innerHTML;
+        }
+        let tumNotlar = [];  // Tüm notları saklayacak
+
+        // Notları getirir
+        async function tumunuGetir() {
+            const yanit = await fetch('/notlar/tum-notlar', { method: 'POST' });
+            const notlar = await yanit.json();
+            tumNotlar = notlar.notlar;
+            notGoster(tumNotlar);
+        }
+
+        // Notları ekrana yansıtır
+        function notGoster(notlar) {
+            const notIzgarasi = document.getElementById('notlar');
+            notIzgarasi.innerHTML = '';
+
+            notlar.forEach(not => {
+                const tekilNot = document.createElement('div');
+                tekilNot.className = 'tekil-not';
+
+                const baslik = document.createElement('div');
+                baslik.className = 'not-basligi';
+                baslik.textContent = temizle(not.baslik);
+                baslik.onclick = () => notGuncelle(not.notId);
+
+                const icerik = document.createElement('p');
+                icerik.textContent = temizle(not.icerik.substring(0, 25) + (not.icerik.length > 25 ? '...' : ''));
+
+                const silmeButonu = document.createElement('button');
+                silmeButonu.className = 'silme-butonu';
+                silmeButonu.textContent = 'Sil';
+                silmeButonu.onclick = (event) => {
+                    event.stopPropagation();  // Ana ekrandaki tıklama olayını durdurur
+                    notSil(temizle(not.notId));
+                };
+
+                tekilNot.appendChild(baslik);
+                tekilNot.appendChild(icerik);
+                tekilNot.appendChild(silmeButonu);
+                notIzgarasi.appendChild(tekilNot);
+            });
+        }
+
+        // Not arama
+        function notAra() {
+            const sorgu = temizle(document.getElementById('arama').value.toLowerCase());
+            const arananNotlar = tumNotlar.filter(not => 
+                temizle(not.baslik.toLowerCase()).includes(sorgu) || 
+                temizle(not.icerik.toLowerCase()).includes(sorgu)
+            );
+            notGoster(arananNotlar);
+        }
+
+        // Not silme
+        async function notSil(notId) {
+            const onay = confirm('Bu notu silmek istediğinize emin misiniz?');
+            if (onay) {
+                const yanit = await fetch('/notlar/not-sil', { 
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notId })
+                });
+                if (yanit.ok) {
+                    alert('Not silindi.');
+                    tumunuGetir();  // Güncellenmiş not listesini getirir
+                } else {
+                    alert('Not silinemedi.');
+                }
+            }
+        }
+
+        // Yeni not ekleme ekranına geçiş
+        function notEkle() {
+            window.location.href = '/notlar/not-ekle';
+        }
+
+        // Not güncelleme ekranına geçiş
+        function notGuncelle(id) {
+            window.location.href = `/notlar/not-guncelle?id=${id}`;
+        }
+
+        tumunuGetir();  // Sayfa yüklenince notları getirir
+    </script>
+</body>
+</html>

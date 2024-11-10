@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Not Güncelle - Kolay Erişim</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f4f4f9; }
+        .container { max-width: 500px; width: 100%; }
+        input, textarea, button { width: 100%; padding: 10px; margin: 10px 0; font-size: 1em; }
+        button { background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Not Güncelle</h2>
+        <input type="text" id="not-basligi" placeholder="Başlık" required>
+        <textarea id="not-icerigi" placeholder="Not içeriğini güncelleyin..." rows="6" required></textarea>
+        <button onclick="notGuncelle()">Güncelle</button>
+    </div>
+
+    <script>
+        function temizle(yazi) {
+            const gecici = document.createElement('div');
+            gecici.textContent = yazi;
+            return gecici.innerHTML;
+        }
+        const parametreler = new URLSearchParams(window.location.search);
+        const notId = temizle(parametreler.get('id'));
+
+        async function notGetir() {
+            const yanit = await fetch('/notlar/not-getir', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ notId })
+            });
+            const not = await yanit.json();
+
+            document.getElementById('not-basligi').value = temizle(not.baslik);
+            document.getElementById('not-icerigi').value = temizle(not.icerik);
+        }
+
+        async function notGuncelle() {
+            const baslik = temizle(document.getElementById('not-basligi').value.trim());
+            const icerik = temizle(document.getElementById('not-icerigi').value.trim());
+
+            if (baslik && icerik) {
+                const yanit = await fetch('/notlar/not-guncelle', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notId, baslik, icerik })
+                });
+
+                if (yanit.ok) {
+                    alert('Not güncellendi!');
+                    window.location.href = '/notlar';
+                } else {
+                    alert('Not güncellenemedi.');
+                }
+            } else {
+                alert('Lütfen tüm alanları doldurun.');
+            }
+        }
+
+        notGetir();
+    </script>
+</body>
+</html>

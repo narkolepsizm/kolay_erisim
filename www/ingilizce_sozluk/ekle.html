@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İngilizce Kelime Ekle - Kolay Erişim</title>
+    <style>
+        /* Stil ayarları */
+        body { display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f0f5; }
+        .container { max-width: 500px; text-align: center; }
+        input, button, select { width: 100%; padding: 10px; margin: 5px 0; font-size: 1em; }
+        button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>İngilizce Kelime Ekle</h2>
+        <select id="dil">
+            <option value="en->tr">İngilizce -> Türkçe</option>
+            <option value="tr->en">Türkçe -> İngilizce</option>
+        </select>
+        <input type="text" id="kelime" placeholder="Kelime" required>
+        <input type="text" id="anlam1" placeholder="1. Anlamı" required>
+        <input type="text" id="anlam2" placeholder="2. Anlamı">
+        <input type="text" id="anlam3" placeholder="3. Anlamı">
+        <button onclick="kelimeEkle()">Kelime Ekle</button>
+    </div>
+    <script>
+        function temizle(yazi) {
+            const gecici = document.createElement('div');
+            gecici.textContent = yazi;
+            return gecici.innerHTML;
+        }
+        async function kelimeEkle() {
+            const kelime = temizle(document.getElementById('kelime').value.trim());
+            const anlamlar = [
+                temizle(document.getElementById('anlam1').value.trim()),
+                temizle(document.getElementById('anlam2').value.trim()),
+                temizle(document.getElementById('anlam3').value.trim())
+            ].filter(Boolean);
+            //filter(Boolean) metodu, dizideki boş değerleri temizler.
+            const dil = document.getElementById('dil').value;
+            const yanit = await fetch('/ingilizce-sozluk/ekle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ kelime: kelime, anlamlar: anlamlar, dil: dil })
+            });
+
+            if (yanit.ok) {
+                alert('Kelime başarıyla eklendi!');
+                document.getElementById('kelime').value = '';
+                document.getElementById('anlam1').value = '';
+                document.getElementById('anlam2').value = '';
+                document.getElementById('anlam3').value = '';
+            } else {
+                //yanit bir json nesnesi, içerisinde hata mesajı varsa onu göster
+                const hata = await yanit.json();
+                if (hata && hata.hata) {
+                    temizle(alert(`${hata.hata}`));
+                } 
+                else{
+                    alert('Kelime eklenirken bir hata oluştu, hata kodu: ekle01');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almanca Kelime Sor - Kolay Erişim</title>
+    <style>
+        /* Stil ayarları */
+        body { display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f0f5; }
+        .container { max-width: 500px; text-align: center; }
+        input, button { width: 100%; padding: 10px; margin: 5px 0; font-size: 1em; }
+        .sonuc { font-weight: bold; margin-top: 10px; }
+        .sonuc.dogru { color: #4CAF50; }
+        .sonuc.yanlis { color: #f44336; }
+        .yeni-soru { background-color: #2196F3; color: white; border: none; cursor: pointer; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Almanca Kelime Sor</h2>
+        <p id="soru">Rastgele bir kelime sorulacak...</p>
+        <form id="cevap-formu">
+            <input type="text" id="cevap" placeholder="Anlamını tahmin edin">
+            <button id="onayla" type="submit">Cevapla</button>
+            <p id="sonuc"></p>
+        </form>
+    </div>
+    <script>
+        function temizle(yazi) {
+            const gecici = document.createElement('div');
+            gecici.textContent = yazi;
+            return gecici.innerHTML;
+        }
+        let kelime = {};
+        async function soruSor() {
+            document.getElementById('sonuc').textContent = '';
+            document.getElementById('sonuc').className = 'sonuc';
+            document.getElementById('cevap').value = '';
+            
+            const yanit = await fetch('/almanca-sozluk/sor', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' } 
+            });
+            kelime = await yanit.json();
+            const tur = kelime.tur;
+            let soru = [];
+            if (tur === 'adjektiv') {
+                soru.push(kelime.adjektiv, kelime.komparativ, kelime.superlativ);
+            } 
+            else if (tur === 'nomen') {
+                soru.push(kelime.singular, kelime.genitiv, kelime.plural);
+            } 
+            else if (tur === 'verb') {
+                soru.push(kelime.verb, kelime.singular3, kelime.praeteritum, kelime.partizip2);
+            } 
+            document.getElementById('onayla').classList.remove('yeni-soru');
+            document.getElementById('onayla').textContent = 'Cevapla';
+            document.getElementById('soru').textContent = `Anlamı nedir: ${temizle(soru.filter(Boolean).join(", "))}?`;
+        }
+
+        // Cevabı kontrol eder
+        function kontrolEt() {
+            const cevap = temizle(document.getElementById('cevap').value.trim().toLowerCase());
+            const sonuc = document.getElementById('sonuc');
+
+            //kelime.anlamlar bir array, içindeki her bir anlamı küçük harfe çevirip kontrol eder
+            if (kelime.anlamlar.some(anlam => anlam.toLowerCase() === cevap)) {
+                sonuc.textContent = "Doğru cevap!";
+                sonuc.classList.add("dogru");
+            } else {
+                sonuc.textContent = `Yanlış cevap! Doğru cevaplar: ${temizle(kelime.anlamlar.filter(Boolean).join(", "))}`;
+                sonuc.classList.add("yanlis");
+            }
+            document.getElementById('onayla').classList.add('yeni-soru');
+            document.getElementById('onayla').textContent = 'Yeni Soru';
+            kelime = {};
+        }
+
+        document.getElementById("cevap-formu").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if(kelime.id){
+                if(document.getElementById('cevap').value.trim() === "") {
+                    sonuc.textContent = "Cevap alanı boş bırakılamaz! ";
+                    sonuc.classList.add("yanlis");
+                    return;
+                }
+                await kontrolEt();
+            }
+            else{
+                soruSor();
+            }
+        });
+
+        soruSor();
+    </script>
+</body>
+</html>

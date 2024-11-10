@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Giriş Yap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Genel Stil */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #d3b88c;
+            color: #333;
+        }
+
+        /* Konteyner ve Form Stil */
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            font-weight: bold;
+            margin: 15px 0 5px;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #85dcfa;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #85dcfa;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #85dcfa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .error-message {
+            color: #FF4C4C;
+            margin-top: 10px;
+            font-size: 0.9em;
+            display: none; /* Başlangıçta gizli */
+        }
+
+        .show-error {
+            display: block; /* Hata olduğunda gösterilecek */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="giris">
+            <h1>Kolay Erişim</h1>
+            <label for="kullanici_adi">Kullanıcı Adı</label>
+            <input type="text" name="kullanici" id="kullanici" required autofocus>
+            <label for="sifre">Şifre</label>
+            <input type="password" name="sifre" id="sifre" required>
+            <button type="submit">Giriş Yap</button>
+            <div id="error" class="error-message"></div>
+        </form>
+    </div>
+    <script>
+        function girisYap() {
+            var kullanici = document.getElementById("kullanici").value;
+            var sifre = document.getElementById("sifre").value;
+            var error = document.getElementById("error");
+            const r = new URLSearchParams(window.location.search).get('r') || "/";
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/kullanici/giris", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.hata) {
+                        error.classList.add("show-error");
+                        error.innerText = response.hata;
+                    } 
+                    else {
+                        error.classList.remove("show-error");
+                        window.location.href = r.startsWith("/") ? r : "/";
+                    }
+                }
+            };
+            xhr.send(JSON.stringify({kullanici: kullanici, sifre: sifre}));
+        }
+        document.getElementById("giris").addEventListener("submit", function(event) {
+            event.preventDefault();
+            girisYap();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almanca Kelime Ara - Kolay Erişim</title>
+    <style>
+        /* Stil ayarları */
+        body { display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f0f5; }
+        .container { max-width: 500px; text-align: center; }
+        input, button { width: 100%; padding: 10px; margin: 5px 0; font-size: 1em; }
+        ul { list-style: none; padding: 0; }
+        .kelime { display: flex; justify-content: space-between; padding: 10px; background-color: #fff; margin: 5px 0; border-radius: 4px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+        button.sil { background-color: #f44336; color: #fff; border: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Almanca Kelime Ara</h2>
+        <input type="text" id="ara" placeholder="Aranacak kelime" oninput="kelimeAra()">
+        <ul id="arama-sonuclari"></ul>
+    </div>
+    <script>
+        function temizle(yazi) {
+            const gecici = document.createElement('div');
+            gecici.textContent = yazi;
+            return gecici.innerHTML;
+        }
+        async function kelimeAra() {
+            const sorgu = temizle(document.getElementById('ara').value.trim());
+            const sonuclar = document.getElementById('arama-sonuclari');
+            sonuclar.innerHTML = '';
+            if (sorgu) {
+                const yanit = await fetch('/almanca-sozluk/ara', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ kelime: sorgu })
+                });
+                const veri = await yanit.json();
+                veri.adjektiv.forEach(girdi => {
+                    const li = document.createElement('li');
+                    li.className = 'kelime';
+                    const adjAlmanca = [
+                        temizle(girdi.adjektiv),
+                        temizle(girdi.komparativ),
+                        temizle(girdi.superlativ)
+                    ];
+                    li.innerHTML = `${temizle(adjAlmanca.filter(Boolean).join(", "))} - ${temizle(girdi.anlamlar.filter(Boolean).join(", "))} <button class="sil" onclick="kelimeSil('${temizle(girdi.id)}')">Sil</button>`;
+                    sonuclar.appendChild(li);
+                });
+                veri.nomen.forEach(girdi => {
+                    const li = document.createElement('li');
+                    li.className = 'kelime';
+                    const nomAlmanca = [
+                        temizle(girdi.singular),
+                        temizle(girdi.genitiv),
+                        temizle(girdi.plural)
+                    ];
+                    li.innerHTML = `${temizle(nomAlmanca.filter(Boolean).join(", "))} - ${temizle(girdi.anlamlar.filter(Boolean).join(", "))} <button class="sil" onclick="kelimeSil('${temizle(girdi.id)}')">Sil</button>`;
+                    sonuclar.appendChild(li);
+                });
+                veri.verb.forEach(girdi => {
+                    const li = document.createElement('li');
+                    li.className = 'kelime';
+                    const verAlmanca = [
+                        temizle(girdi.verb),
+                        temizle(girdi.singular3),
+                        temizle(girdi.praeteritum),
+                        temizle(girdi.partizip2)
+                    ];
+                    li.innerHTML = `${temizle(verAlmanca.filter(Boolean).join(", "))} - ${temizle(girdi.anlamlar.filter(Boolean).join(", "))} <button class="sil" onclick="kelimeSil('${temizle(girdi.id)}')">Sil</button>`;
+                    sonuclar.appendChild(li);
+                });
+            }
+        }
+
+        async function kelimeSil(veri) {
+            const yanit = await fetch('/almanca-sozluk/sil', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: veri })
+            });
+            if (yanit.ok) {
+                alert('Kelime silindi!');
+                kelimeAra();
+            } 
+            else {
+                const hata = await yanit.json();
+                if (hata && hata.hata) {
+                    temizle(alert(`${hata.hata}`));
+                } 
+                else{
+                    alert('Silme işlemi başarısız oldu, hata kodu: sil01');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

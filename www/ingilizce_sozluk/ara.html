@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İngilizce Kelime Ara - Kolay Erişim</title>
+    <style>
+        /* Stil ayarları */
+        body { display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f0f5; }
+        .container { max-width: 500px; text-align: center; }
+        input, button { width: 100%; padding: 10px; margin: 5px 0; font-size: 1em; }
+        ul { list-style: none; padding: 0; }
+        .kelime { display: flex; justify-content: space-between; padding: 10px; background-color: #fff; margin: 5px 0; border-radius: 4px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+        button.sil { background-color: #f44336; color: #fff; border: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>İnglizce Kelime Ara</h2>
+        <input type="text" id="ara" placeholder="Aranacak kelime" oninput="kelimeAra()">
+        <ul id="arama-sonuclari"></ul>
+    </div>
+    <script>
+        function temizle(yazi) {
+            const gecici = document.createElement('div');
+            gecici.textContent = yazi;
+            return gecici.innerHTML;
+        }
+        async function kelimeAra() {
+            const sorgu = temizle(document.getElementById('ara').value.trim());
+            const sonuclar = document.getElementById('arama-sonuclari');
+            sonuclar.innerHTML = '';
+            if (sorgu) {
+                const yanit = await fetch('/ingilizce-sozluk/ara', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ kelime: sorgu })
+                });
+                const veri = await yanit.json();
+                veri.kelimeler.forEach(girdi => {
+                    const li = document.createElement('li');
+                    li.className = 'kelime';
+                    li.innerHTML = `${temizle(girdi.kelime)} - ${temizle(girdi.anlamlar.filter(Boolean).join(", "))} <button class="sil" onclick="kelimeSil('${temizle(girdi.id)}')">Sil</button>`;
+                    sonuclar.appendChild(li);
+                });
+            }
+        }
+
+        async function kelimeSil(veri) {
+            const yanit = await fetch('/ingilizce-sozluk/sil', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: veri })
+            });
+            if (yanit.ok) {
+                alert('Kelime silindi!');
+                kelimeAra();
+            } 
+            else {
+                const hata = await yanit.json();
+                if (hata && hata.hata) {
+                    temizle(alert(`${hata.hata}`));
+                } 
+                else{
+                    alert('Silme işlemi başarısız oldu, hata kodu: sil01');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

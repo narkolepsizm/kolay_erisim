@@ -1,2 +1,1 @@
-# Kolay Erişim
-Kolay Erişim Uygulaması
+<h1>Kolay Erişim</h1>

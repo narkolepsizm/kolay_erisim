@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Kolay Erişim</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Genel Stil */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #d3b88c;
+            color: #333;
+        }
+
+        /* Konteyner ve Başlık Stil */
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .container h1 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Düğme Stil */
+        button {
+            background-color: #85dcfa; /* Butonun arka plan rengi */
+            color: #000000;
+            border: none;
+            padding: 12px 24px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #85dcfa;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        button:focus {
+            outline: none;
+            border: 2px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kolay Erişim</h1>
+        <button onclick="window.location.href = '/ingilizce-sozluk'">İngilizce Sözlük</button>
+        <button onclick="window.location.href = '/almanca-sozluk'">Almanca Sözlük</button>
+        <button onclick="window.location.href = '/notlar'">Notlar</button>
+    </div>
+</body>
+</html>
+

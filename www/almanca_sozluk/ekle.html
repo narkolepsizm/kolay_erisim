@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Almanca Kelime Ekle - Kolay Erişim</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .form-grubu { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; }
+    input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; }
+    .alanlar { display: flex; flex-wrap: wrap; gap: 20px; }
+    .alanlar .sutun { flex: 1; min-width: 250px; }
+    .gizli { display: none; }
+    .onayla { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    @media (max-width: 600px) {
+      .alanlar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Almanca Kelime Ekle</h2>
+
+  <form id="kelimeFormu">
+    <div class="form-grubu">
+      <label for="kelimeTuru">Kelime Türü Seçin:</label>
+      <select id="kelimeTuru" required>
+        <option value="adj">Adjektiv</option>
+        <option value="nom" selected>Nomen</option>
+        <option value="ver">Verb</option>
+      </select>
+    </div>
+
+    <div class="alanlar">
+      <div class="sutun" id="almancaKisim">
+        <div id="nomenKismi">
+          <div class="form-grubu"><label>Singular:</label><input type="text" id="singular"></div>
+          <div class="form-grubu"><label>Genitiv:</label><input type="text" id="genitiv"></div>
+          <div class="form-grubu"><label>Plural:</label><input type="text" id="plural"></div>
+        </div>
+
+        <div id="adjektivKismi" class="gizli">
+          <div class="form-grubu"><label>Adjektiv:</label><input type="text" id="adjektiv"></div>
+          <div class="form-grubu"><label>Komparativ:</label><input type="text" id="komparativ"></div>
+          <div class="form-grubu"><label>Superlativ:</label><input type="text" id="superlativ"></div>
+        </div>
+
+        <div id="verbKismi" class="gizli">
+          <div class="form-grubu"><label>Verb:</label><input type="text" id="verb"></div>
+          <div class="form-grubu"><label>3. Singular:</label><input type="text" id="singular3"></div>
+          <div class="form-grubu"><label>Präteritum:</label><input type="text" id="praeterium"></div>
+          <div class="form-grubu"><label>partizip2 II:</label><input type="text" id="partizip2"></div>
+        </div>
+      </div>
+
+      <div class="sutun" id="turkceKisim">
+        <div class="form-grubu"><label>Türkçe Anlam 1:</label><input type="text" id="turkce1" required></div>
+        <div class="form-grubu"><label>Türkçe Anlam 2:</label><input type="text" id="turkce2"></div>
+        <div class="form-grubu"><label>Türkçe Anlam 3:</label><input type="text" id="turkce3"></div>
+      </div>
+    </div>
+
+    <button type="submit" class="onayla">Gönder</button>
+  </form>
+
+  <script>
+    function temizle(yazi) {
+        const gecici = document.createElement('div');
+        gecici.textContent = yazi;
+        return gecici.innerHTML;
+    }
+    async function gonder() {
+      const tur = kelimeTuru.value;
+      let veri;
+
+      if (tur === "adj") {
+        if (!document.getElementById("adjektiv").value && !document.getElementById("komparativ").value && !document.getElementById("superlativ").value) {
+          alert("Lütfen en az bir alanı doldurun.");
+          return;
+        }
+        veri = {
+          adjektiv: temizle(document.getElementById("adjektiv").value),
+          komparativ: temizle(document.getElementById("komparativ").value),
+          superlativ: temizle(document.getElementById("superlativ").value)
+        };
+      } else if (tur === "nom") {
+        if (!document.getElementById("singular").value && !document.getElementById("genitiv").value && !document.getElementById("plural").value) {
+          alert("Lütfen en az bir alanı doldurun.");
+          return;
+        }
+        veri = {
+          singular: temizle(document.getElementById("singular").value),
+          genitiv: temizle(document.getElementById("genitiv").value),
+          plural: temizle(document.getElementById("plural").value)
+        };
+      } else if (tur === "ver") {
+        if (!document.getElementById("verb").value && !document.getElementById("singular3").value && !document.getElementById("praeterium").value && !document.getElementById("partizip2").value) {
+          alert("Lütfen en az bir alanı doldurun.");
+          return;
+        }
+        veri = {
+          verb: temizle(document.getElementById("verb").value),
+          singular3: temizle(document.getElementById("singular3").value),
+          praeterium: temizle(document.getElementById("praeterium").value),
+          partizip2: temizle(document.getElementById("partizip2").value)
+        };
+      }
+
+      veri["turkce"] = [
+        temizle(document.getElementById("turkce1").value),
+        temizle(document.getElementById("turkce2").value),
+        temizle(document.getElementById("turkce3").value)
+      ];
+
+      try {
+        veri["tur"] = temizle(tur);
+        const yanit = await fetch(("/almanca-sozluk/ekle"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(veri)
+        });
+        if (yanit.ok){
+            alert("Kelime başarıyla eklendi!");
+            document.getElementById("kelimeFormu").reset();
+            kelimeTuru.value = temizle(tur);
+            kelimeTuru.dispatchEvent(new Event("change"));
+        }
+        else{
+            alert("Bir hata oluştu.");
+        }
+      } 
+      catch (hata) {
+        console.error("Hata:", hata);
+        alert("Sunucuya bağlanılamadı.");
+      }
+    }
+    const kelimeTuru = document.getElementById("kelimeTuru");
+    const adjektivKismi = document.getElementById("adjektivKismi");
+    const nomenKismi = document.getElementById("nomenKismi");
+    const verbKismi = document.getElementById("verbKismi");
+
+    // Varsayılan olarak Nomen alanını göster
+    kelimeTuru.addEventListener("change", () => {
+      adjektivKismi.classList.add("gizli");
+      nomenKismi.classList.add("gizli");
+      verbKismi.classList.add("gizli");
+      if (kelimeTuru.value === "adj") adjektivKismi.classList.remove("gizli");
+      else if (kelimeTuru.value === "nom") nomenKismi.classList.remove("gizli");
+      else if (kelimeTuru.value === "ver") verbKismi.classList.remove("gizli");
+    });
+
+    document.getElementById("kelimeFormu").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await gonder();
+    });
+
+    // Başlangıçta Nomen alanını göster
+    kelimeTuru.dispatchEvent(new Event("change"));
+  </script>
+
+</body>
+</html>
