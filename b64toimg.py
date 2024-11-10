@@ -5,7 +5,7 @@ import sqlite3
 import qrcode
 import urllib.parse
 
-kullanici = 'goruntuleyen'
+kullanici = 'admin'
 uygulama = "Kolay Erişim"
 conn = sqlite3.connect('./ayarlar.db')
 cursor = conn.execute("SELECT kullanici, anahtar FROM kullanicilar WHERE kullanici = '"+kullanici+"'")
