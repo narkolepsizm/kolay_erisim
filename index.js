@@ -3,6 +3,9 @@ const app = express();
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
+const { authenticator } = require('otplib');
+const QRCode = require('qrcode');
+const sqlite3 = require('sqlite3');
 
 app.use(express.json()); // express'in json veri türünü kullanabilmesi içn
 app.use(cookieParser()); // express'in cookie'leri kullanabilmesi için
@@ -10,12 +13,8 @@ app.use(cookieParser()); // express'in cookie'leri kullanabilmesi için
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
 
-const { authenticator } = require('otplib');
-const QRCode = require('qrcode');
-
 authenticator.options = { algorithm: 'sha256'};
 
-const sqlite3 = require('sqlite3');
 const ingilizce_sozluk = new sqlite3.Database('./ingilizce_sozluk.db');
 const almanca_sozluk = new sqlite3.Database('./almanca_sozluk.db');
 const notlar = new sqlite3.Database('./notlar.db');
@@ -608,6 +607,34 @@ app.post('/almanca-sozluk/ekle', cookieDogrula, (req, res) => {
   }
   else{
     return res.status(400).json({ hata: 'Kelime türü bilgisi hatalı! ' });
+  }
+});
+
+app.get('/yedekle', cookieDogrula, (req, res) => {
+  const { vt } = req.query;
+  if (!vt || !req.yetki || req.yetki > 1) {
+    res.status(404).json({mesaj: 'Aradığınız sayfa bulunamadı! '});
+  }
+  let dosya = ""; 
+  switch(vt){
+    case "ingilizce":
+      dosya = "ingilizce_sozluk";
+      break;
+    case "almanca":
+      dosya = "almanca_sozluk";
+      break;
+    case "notlar":
+      dosya = "notlar";
+      break;
+    default:
+      res.status(404).json({mesaj: 'Aradığınız sayfa bulunamadı! '});
+  }
+  dosya = vt + '.db';
+  const dosyaYol = path.join(__dirname, dosya);
+  if (fs.existsSync(dosyaYol)) {
+    res.download(dosyaYol, dosya);
+  } else {
+    res.status(404).json({mesaj: 'Dosya bulunamadı! '});
   }
 });
 

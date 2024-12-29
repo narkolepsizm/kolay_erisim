@@ -133,3 +133,4 @@ dist
 *.db
 
 package-lock.json
+.env
