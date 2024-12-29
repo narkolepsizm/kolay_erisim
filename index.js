@@ -631,9 +631,8 @@ app.get('/yedekle', cookieDogrula, (req, res) => {
     default:
       res.status(404).json({mesaj: 'Aradığınız sayfa bulunamadı! '});
   }
-  dosya = vt + '.db';
+  dosya += ".db";
   const dosyaYol = path.join(__dirname, dosya);
-  return res.status(404).json({mesaj: dosyaYol});
   if (fs.existsSync(dosyaYol)) {
     res.download(dosyaYol, dosya);
   } else {
