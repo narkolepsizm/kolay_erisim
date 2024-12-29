@@ -641,10 +641,7 @@ app.get('/yedekle', cookieDogrula, (req, res) => {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.setHeader('Last-Modified', (new Date()).toUTCString());
-    res.setHeader('Content-Type', 'application/octet-stream');
-    res.setHeader('Content-Disposition', 'attachment; filename=' + dosya);
-    res.setHeader('Content-Length', fs.statSync(dosyaYol).size);
-    res.setHeader('X-Suggested-Filename', dosya);
+    res.setHeader('ETag', '');
     res.download(dosyaYol, dosya);
   } else {
     res.status(404).json({mesaj: 'Aradığınız sayfa bulunamadı! '});
