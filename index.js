@@ -636,7 +636,7 @@ app.get('/yedekle', cookieDogrula, (req, res) => {
   if (fs.existsSync(dosyaYol)) {
     res.download(dosyaYol, dosya);
   } else {
-    res.status(404).json({mesaj: 'Dosya bulunamadı! '});
+    res.status(404).json({mesaj: 'Aradığınız sayfa bulunamadı! '});
   }
 });
 
