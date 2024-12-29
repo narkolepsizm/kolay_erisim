@@ -637,14 +637,16 @@ app.get('/yedekle', cookieDogrula, (req, res) => {
   dosya += ".db";
   const dosyaYol = path.join(__dirname, dosya);
   if (fs.existsSync(dosyaYol)) {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.setHeader('Last-Modified', (new Date()).toUTCString());
-    res.setHeader('Content-Type', 'application/octet-stream');
-    res.setHeader('Content-Disposition', 'attachment; filename=' + dosya);
-    res.setHeader('Content-Length', fs.statSync(dosyaYol).size);
-    res.download(dosyaYol, dosya);
+    res.writeHead(200, {
+      'Content-Type': 'application/octet-stream',
+      'Content-Disposition': 'attachment; filename=' + dosya, 
+      'Content-Length': fs.statSync(dosyaYol).size, 
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    const oku = fs.createReadStream(dosyaYol);
+    oku.pipe(res);
   } else {
     res.status(404).json({mesaj: 'Aradığınız sayfa bulunamadı! '});
   }
