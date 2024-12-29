@@ -633,6 +633,7 @@ app.get('/yedekle', cookieDogrula, (req, res) => {
   }
   dosya = vt + '.db';
   const dosyaYol = path.join(__dirname, dosya);
+  return res.status(404).json({mesaj: dosyaYol});
   if (fs.existsSync(dosyaYol)) {
     res.download(dosyaYol, dosya);
   } else {
