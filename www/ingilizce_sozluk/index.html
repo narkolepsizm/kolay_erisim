@@ -29,8 +29,8 @@
         if (yanit.ok) {
             alert('Yedekleme başarılı!');
         } 
-        else if (sonuc.yetkisiz) {
-            alert('Yedekleme işlemi için yetkiniz yok!');
+        else if (sonuc.hata) {
+            alert(`${sonuc.hata}`);
         }
         else {
             alert('Yedekleme sırasında bir hata oluştu!');

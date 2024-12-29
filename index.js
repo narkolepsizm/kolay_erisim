@@ -288,7 +288,7 @@ app.delete('/ingilizce-sozluk/sil', cookieDogrula, (req, res) => {
     return res.status(400).json({ hata: 'Kullanici veya yetki bilgisi eksik! ' });
   }
   if(req.yetki > 1){
-    return res.status(403).json({ hata: 'Bu işlem için yetkiniz yok! ', yetkisiz: true });
+    return res.status(403).json({ hata: 'Bu işlem için yetkiniz yok! '});
   }
   new Promise((resolve, reject) => {
     ingilizce_sozluk.run('DELETE FROM turkce WHERE id = ?', id, (err) => {
@@ -614,8 +614,11 @@ app.post('/almanca-sozluk/ekle', cookieDogrula, (req, res) => {
 
 app.get('/yedekle', cookieDogrula, (req, res) => {
   const { vt } = req.query;
-  if (!vt || !req.yetki || req.yetki > 1) {
+  if (!vt || !req.yetki) {
     res.status(404).json({mesaj: 'Aradığınız sayfa bulunamadı! '});
+  }
+  if(req.yetki > 1){
+    return res.status(403).json({ hata: 'Bu işlem için yetkiniz yok! ' });
   }
   let dosya = ""; 
   switch(vt){
