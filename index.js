@@ -6,6 +6,8 @@ const crypto = require('crypto');
 const { authenticator } = require('otplib');
 const QRCode = require('qrcode');
 const sqlite3 = require('sqlite3');
+const fs = require('fs');
+const path = require('path');
 
 app.use(express.json()); // express'in json veri türünü kullanabilmesi içn
 app.use(cookieParser()); // express'in cookie'leri kullanabilmesi için

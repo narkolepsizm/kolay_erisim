@@ -21,8 +21,10 @@
     <div class="container">
         <div class="header">
             <h1>Notlar</h1>
-            <button onclick="notEkle()">Yeni Not Ekle</button>
-            <button onclick="window.location.href='/yedekle?vt=notlar'">Tüm Notları Yedekle</button>
+            <div>
+                <button onclick="notEkle()">Yeni Not Ekle</button>
+                <button onclick="window.location.href='/yedekle?vt=notlar'">Tüm Notları Yedekle</button>
+            </div>
         </div>
         <div class="arama-cubugu">
             <input type="text" id="arama" placeholder="Notlarda arayın..." oninput="notAra()">
