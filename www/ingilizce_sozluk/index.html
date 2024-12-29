@@ -18,7 +18,23 @@
         <button onclick="window.location.href='/ingilizce-sozluk/ara'">İngilizce Kelime Ara</button>
         <button onclick="window.location.href='/ingilizce-sozluk/sor'">İngilizce Kelime Sor</button>
         <button onclick="window.location.href='/ingilizce-sozluk/ekle'">İngilizce Kelime Ekle</button>
-        <button onclick="window.location.href='/yedekle?vt=ingilizce'">İngilizce Kelimeleri İndir</button>
+        <button onclick="yedekle('ingilizce')">İngilizce Kelimeleri İndir</button>
     </div>
 </body>
+<script>
+    // Yedekleme fonksiyonu
+    async function yedekle(vt) {
+        const yanit = await fetch(`/yedekle?vt=${vt}`);
+        const sonuc = await yanit.json();
+        if (yanit.ok) {
+            alert('Yedekleme başarılı!');
+        } 
+        else if (sonuc.yetkisiz) {
+            alert('Yedekleme işlemi için yetkiniz yok!');
+        }
+        else {
+            alert('Yedekleme sırasında bir hata oluştu!');
+        }
+    }
+</script>
 </html>

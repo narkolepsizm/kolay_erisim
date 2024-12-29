@@ -23,7 +23,7 @@
             <h1>Notlar</h1>
             <div>
                 <button onclick="notEkle()">Yeni Not Ekle</button>
-                <button onclick="window.location.href='/yedekle?vt=notlar'">Tüm Notları Yedekle</button>
+                <button onclick="yedekle('notlar')">Tüm Notları Yedekle</button>
             </div>
         </div>
         <div class="arama-cubugu">
@@ -121,4 +121,20 @@
         tumunuGetir();  // Sayfa yüklenince notları getirir
     </script>
 </body>
+<script>
+    // Yedekleme fonksiyonu
+    async function yedekle(vt) {
+        const yanit = await fetch(`/yedekle?vt=${vt}`);
+        const sonuc = await yanit.json();
+        if (yanit.ok) {
+            alert('Yedekleme başarılı!');
+        } 
+        else if (sonuc.yetkisiz) {
+            alert('Yedekleme işlemi için yetkiniz yok!');
+        }
+        else {
+            alert('Yedekleme sırasında bir hata oluştu!');
+        }
+    }
+</script>
 </html>

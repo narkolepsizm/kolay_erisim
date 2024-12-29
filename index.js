@@ -288,7 +288,7 @@ app.delete('/ingilizce-sozluk/sil', cookieDogrula, (req, res) => {
     return res.status(400).json({ hata: 'Kullanici veya yetki bilgisi eksik! ' });
   }
   if(req.yetki > 1){
-    return res.status(403).json({ hata: 'Bu işlem için yetkiniz yok! ' });
+    return res.status(403).json({ hata: 'Bu işlem için yetkiniz yok! ', yetkisiz: true });
   }
   new Promise((resolve, reject) => {
     ingilizce_sozluk.run('DELETE FROM turkce WHERE id = ?', id, (err) => {
