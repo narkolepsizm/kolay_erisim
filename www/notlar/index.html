@@ -125,15 +125,24 @@
     // Yedekleme fonksiyonu
     async function yedekle(vt) {
         const yanit = await fetch(`/yedekle?vt=${vt}`);
-        const sonuc = await yanit.json();
         if (yanit.ok) {
+            const blob = await yanit.blob();
+            const dosyaAdi = yanit.headers.get('content-disposition').split('filename=')[1];
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = dosyaAdi.slice(1, -1);
+            a.click();
             alert('Yedekleme başarılı!');
         } 
-        else if (sonuc.hata) {
-            alert(`${sonuc.hata}`);
-        }
-        else {
-            alert('Yedekleme sırasında bir hata oluştu!');
+        else{
+            const sonuc = await yanit.json();
+            if (sonuc.hata) {
+                alert(`${sonuc.hata}`);
+            }
+            else {
+                alert('Yedekleme sırasında bir hata oluştu!');
+            }
         }
     }
 </script>
